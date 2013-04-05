@@ -1,0 +1,29 @@
+<%
+messages=[
+  %q{
+<strong>Welcome to MindMup!</strong> If this is your first time here, have a look at our <a href='#'  href='#' data-target='#modalAbout' data-toggle='modal'>One Minute Introduction</a> to get started. 
+  },
+  %q{
+<strong> Did you know that our keyboard shortcuts allow you create maps very productively?</strong>
+All map operations have a keyboard shortcut. Click
+ on the keyboard button in the toolbar to show or hide shortcuts while you edit.
+  },
+  %q{
+<strong>You can now create private maps</strong>. <a href="http://blog.mindmup.com/2013/02/privacy-team-work-and-lot-more-mindmup.html" target="_blank">Learn more about this...</a>
+  }
+];
+next_message=0;
+if session['welcome']=='true' || session['welcome']==true
+  next_message=1; #legacy check
+else
+  next_message=session['welcome'].to_s.to_i unless session['welcome'].nil?
+end
+
+if next_message<messages.length then
+ session['welcome']=next_message+1;
+%>
+ <div id='welcome_message' data-message='<%=next_message%>' class='alert alert-info'><button type='button' class='close' data-dismiss='alert'>&times;</button>
+   <p>
+   <%=messages[next_message]; %></p>
+ </div>
+<% end %>

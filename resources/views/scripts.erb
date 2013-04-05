@@ -1,0 +1,90 @@
+<%
+  (reset! scripts [
+    "//mindmup.s3.amazonaws.com/lib/jquery.min.js" ,
+    "//mindmup.s3.amazonaws.com/lib/underscore-min.js" ,
+	  "//mindmup.s3.amazonaws.com/lib/bootstrap-2.3.1.min.js",
+    "//mindmup.s3.amazonaws.com/lib/jquery-ui-1.10.0.custom.min.js",
+    "//mindmup.s3.amazonaws.com/lib/jquery.mousewheel-3.1.1.js",
+    "//mindmup.s3.amazonaws.com/lib/color-0.4.1.min.js",
+    "//mindmup.s3.amazonaws.com/lib/jquery.colorPicker.min.js",
+    "//mindmup.s3.amazonaws.com/lib/kinetic-v4.4.0.min.js",
+    "//mindmup.s3.amazonaws.com/lib/jquery.hammer.min.js",
+  	"//mindmup.s3.amazonaws.com/lib/jquery.hotkeys.js",
+    "/mapjs-compiled.js",
+    "/mm.js",
+    "/maps.js",
+    "/activity-log.js",
+    "/alert.js",
+    "/map-repository.js",
+    "/s3-adapter.js",
+    "/google-drive-adapter.js",
+    "/offline-adapter.js",
+    "/feedback.js",
+    "/vote.js",
+    "/welcome-message.js",
+    "/floating-toolbar.js",
+    "/bookmark.js",
+    "/download-widget.js",
+    "/title-update-widget.js",
+    "/share-widget.js",
+    "/share-email-widget.js",
+    "/background-upload-widget.js",
+    "/file-reader-upload-widget.js",
+    "/import-widget.js",
+    "/toggle-class-widget.js",
+    "/url-shortener-widget.js",
+    "/save-widget.js",
+    "/remote-export-widget.js",
+    "/class-caching-widget.js",
+    "/google-drive-open-widget.js",
+    "/local-storage-open-widget.js",
+    "/command-line-widget.js",
+	  "/freemind-import.js",
+	  "/tabular-export.js",
+    "/bootstrap-wysiwyg.js",
+    "/attachment-editor-widget.js",
+    "/main.js"
+  ])
+%>
+<script>
+   var ScriptHelper={
+     loadedScripts:[],
+     expectedScripts:[],
+     errorScripts:[],
+     jsErrors:[],
+     logError:function(message,url,line){
+       ScriptHelper.jsErrors.push({'message':message, 'url':url||ScriptHelper.currentScript, 'line':line});
+     },
+     failed: function(){
+       return ScriptHelper.errorScripts.length>0 || ScriptHelper.jsErrors.length>0 || ScriptHelper.loadedScripts.length!=<%= (count @scripts) %>
+     },
+     failedScripts: function(){
+       var keys={},idx,result=[];
+       for (idx in ScriptHelper.errorScripts) { keys[ScriptHelper.errorScripts[idx]]=true };
+       for (idx in ScriptHelper.jsErrors) { keys[ScriptHelper.jsErrors[idx].url]=true };
+       for (idx in ScriptHelper.expectedScripts) { if (ScriptHelper.loadedScripts.indexOf(ScriptHelper.expectedScripts[idx])<0) keys[ScriptHelper.expectedScripts[idx]]=true; }
+       for (idx in keys) {result.push(idx)};
+       return result;
+     },
+     	loading: function(){
+     		return ScriptHelper.errorScripts.length==0 && ScriptHelper.jsErrors.length==0 && ScriptHelper.loadedScripts.length<ScriptHelper.expectedScripts.length;
+     	},
+     	afterLoad: function(config){
+     		ScriptHelper.loadWaitRetry=(ScriptHelper.loadWaitRetry||50)-1;
+     		if (ScriptHelper.loading() && ScriptHelper.loadWaitRetry>0){
+     			setTimeout( function(){ScriptHelper.afterLoad(config)},100);
+     		}
+     		else {
+     			if (ScriptHelper.failed()) config.fail(); else config.success();
+     		}
+     	}	
+   };
+   window.onerror=ScriptHelper.logError;
+</script>
+<% (doseq [url @scripts] %>
+  <script>ScriptHelper.currentScript='<%= url %>'; ScriptHelper.expectedScripts.push('<%= url %>');</script>
+  <script src='<%= url %>' onload='ScriptHelper.loadedScripts.push("<%= url %>")' onerror='ScriptHelper.errorScripts.push("<%= url %>")'></script>
+<% ) %>
+<script>
+  window.onerror=function(){};
+</script>
