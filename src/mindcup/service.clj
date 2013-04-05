@@ -15,26 +15,31 @@
               :erb render
               :browser {}
               :map_url map_url
-              :mapid 0
+              :mapid "new"
 	      :scripts (atom nil)}]
-    (try 
-      (comb/eval (io/resource (str "views/" template ".erb")) data)
-      #_(catch Exception e
-        (str e)))))
+    (comb/eval (io/resource (str "views/" template ".erb")) data)))
 
 (defn about-page
   [request]
   (ring-resp/response (format "Clojure %s" (clojure-version))))
 
-(defn home-page
-  [request]
+(defn show-map []
   (-> (ring-resp/response (render "editor"))
       (ring-resp/content-type "text/html")))
+
+(defn map-page
+  [request]
+  (show-map))
+
+(defn home-page
+  [request]
+  (show-map))
 
 (defroutes routes
   [[["/" {:get home-page}
      ;; Set default interceptors for /about and any other paths under /
      ^:interceptors [(body-params/body-params)]
+     ["/map/:mapid" {:get map-page}]
      ["/about" {:get about-page}]]]])
 
 ;; You can use this fn or a per-request fn via io.pedestal.service.http.route/url-for
