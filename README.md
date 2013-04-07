@@ -18,6 +18,9 @@ To configure logging see config/logback.xml. By default, the app logs to stdout 
 To learn more about configuring Logback, read its
 [documentation](http://logback.qos.ch/documentation.html).
 
+## Limitations
+*Many*. Only the homepage let's you mindmap with javascript and even it has some rendering issues.
+
 ## Credits
 
 @brandombloom did most of the work via some good vim macros. I'm just to blame for the idea.
